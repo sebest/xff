@@ -1,4 +1,4 @@
-X-Forwarded-For middleware fo Go [![godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/sebest/xff)
+# X-Forwarded-For middleware fo Go [![godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/sebest/xff)
 
 Package `xff` is a `net/http` middleware/handler to parse [Forwarded HTTP Extension](http://tools.ietf.org/html/rfc7239) in Golang.
 
