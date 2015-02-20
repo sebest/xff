@@ -32,7 +32,7 @@ func IsPublicIP(ip net.IP) bool {
 	return true
 }
 
-// Parse parses the X-Forwarded-For Header and returns the IP address.
+// Parse parses the value of the X-Forwarded-For Header and returns the IP address.
 func Parse(ipList string) string {
 	for _, ip := range strings.Split(ipList, ",") {
 		ip = strings.TrimSpace(ip)
@@ -43,42 +43,27 @@ func Parse(ipList string) string {
 	return ""
 }
 
-// GetRemoteAddr parse the given request and resolve any X-Forwarded-* headers and return
-// the resolved remote address.
+// GetRemoteAddr parses the given request, resolves the X-Forwarded-For header
+// and returns the resolved remote address.
 func GetRemoteAddr(r *http.Request) string {
 	xff := r.Header.Get("X-Forwarded-For")
-	xfp := r.Header.Get("X-Forwarded-Port")
 	var ip string
 	if xff != "" {
 		ip = Parse(xff)
 	}
-	var port string
-	if xfp != "" {
-		port = Parse(xfp)
+	_, oport, err := net.SplitHostPort(r.RemoteAddr)
+	if err == nil && ip != "" {
+		return fmt.Sprintf("%s:%s", ip, oport)
 	}
-	remoteAddr := r.RemoteAddr
-	if ip != "" && port != "" {
-		remoteAddr = fmt.Sprintf("%s:%s", ip, port)
-	} else {
-		oip, oport, err := net.SplitHostPort(r.RemoteAddr)
-		if err == nil {
-			if ip != "" {
-				remoteAddr = fmt.Sprintf("%s:%s", ip, oport)
-			} else if port != "" {
-				remoteAddr = fmt.Sprintf("%s:%s", oip, port)
-			}
-		}
-	}
-	return remoteAddr
+	return r.RemoteAddr
 }
 
 // Handler is a middleware to update RemoteAdd from X-Fowarded-* Headers.
 func Handler(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r.RemoteAddr = GetRemoteAddr(r)
 		h.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(fn)
+	})
 }
 
 // XFF equals Handler for backward compatibility.
