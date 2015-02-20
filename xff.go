@@ -72,11 +72,14 @@ func GetRemoteAddr(r *http.Request) string {
 	return remoteAddr
 }
 
-// XFF is a middleware to update RemoteAdd from X-Fowarded-* Headers.
-func XFF(h http.Handler) http.Handler {
+// Handler is a middleware to update RemoteAdd from X-Fowarded-* Headers.
+func Handler(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		r.RemoteAddr = GetRemoteAddr(r)
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)
 }
+
+// XFF equals Handler for backward compatibility.
+var XFF = Handler
