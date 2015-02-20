@@ -4,28 +4,40 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"regexp"
 	"strings"
 )
 
-var (
-	privateIPRE = regexp.MustCompile("(^127.0.0.1)|(^10.)|(^172.1[6-9].)|(^172.2[0-9].)|(^172.3[0-1].)|(^192.168.)")
-	ipRE        = regexp.MustCompile("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$")
-)
+var privateMasks = func() []net.IPNet {
+	masks := []net.IPNet{}
+	for _, cidr := range []string{"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "fc00::/7"} {
+		_, net, err := net.ParseCIDR(cidr)
+		if err != nil {
+			panic(err)
+		}
+		masks = append(masks, *net)
+	}
+	return masks
+}()
+
+// IsPublicIP returns true if the given IP can be routed on the Internet
+func IsPublicIP(ip net.IP) bool {
+	if !ip.IsGlobalUnicast() {
+		return false
+	}
+	for _, mask := range privateMasks {
+		if mask.Contains(ip) {
+			return false
+		}
+	}
+	return true
+}
 
 // Parse parses the X-Forwarded-For Header and returns the IP address.
-func Parse(ipAddress string) string {
-	if ipRE.MatchString(ipAddress) && !privateIPRE.MatchString(ipAddress) {
-		return ipAddress
-	}
-
-	parts := strings.Split(ipAddress, ",")
-	for i, p := range parts {
-		parts[i] = strings.TrimSpace(p)
-		if privateIPRE.MatchString(parts[i]) {
-			continue
-		} else if ipRE.MatchString(parts[i]) {
-			return parts[i]
+func Parse(ipList string) string {
+	for _, ip := range strings.Split(ipList, ",") {
+		ip = strings.TrimSpace(ip)
+		if IP := net.ParseIP(ip); IP != nil && IsPublicIP(IP) {
+			return ip
 		}
 	}
 	return ""
