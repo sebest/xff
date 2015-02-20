@@ -21,6 +21,16 @@ func TestParse_invalid(t *testing.T) {
 	assert.Equal(t, "", res)
 }
 
+func TestParse_invalid_sioux(t *testing.T) {
+	res := Parse("123#1#2#3")
+	assert.Equal(t, "", res)
+}
+
+func TestParse_invalid_private_lookalike(t *testing.T) {
+	res := Parse("102.3.2.1")
+	assert.Equal(t, "102.3.2.1", res)
+}
+
 func TestParse_valid(t *testing.T) {
 	res := Parse("68.45.152.220")
 	assert.Equal(t, "68.45.152.220", res)
@@ -43,5 +53,10 @@ func TestParse_multi_with_invalid(t *testing.T) {
 
 func TestParse_multi_with_invalid2(t *testing.T) {
 	res := Parse("192.168.110.162, 190.57.149.90, invalid")
+	assert.Equal(t, "190.57.149.90", res)
+}
+
+func TestParse_multi_with_invalid_sioux(t *testing.T) {
+	res := Parse("192.168.110.162, 190.57.149.90, 123#1#2#3")
 	assert.Equal(t, "190.57.149.90", res)
 }
