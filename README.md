@@ -1,4 +1,4 @@
-# XFF: X-Forwarded-For middleware fo GoLang [![godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/sebest/xff)
+X-Forwarded-For middleware fo Go [![godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/sebest/xff)
 
 Package `xff` is a `net/http` middleware/handler to parse [Forwarded HTTP Extension](http://tools.ietf.org/html/rfc7239) in Golang.
 
@@ -8,7 +8,7 @@ Install `xff`:
 
     go get github.com/sebest/xff
 
-Edit `example.go`:
+Edit `server.go`:
 
 ```go
 package main
@@ -30,7 +30,7 @@ func main() {
 
 Then run your server:
 
-    go run example.go
+    go run server.go
 
 The server now runs on `localhost:8080`:
 
