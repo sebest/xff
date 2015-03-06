@@ -60,3 +60,8 @@ func TestParse_multi_with_invalid_sioux(t *testing.T) {
 	res := Parse("192.168.110.162, 190.57.149.90, 123#1#2#3")
 	assert.Equal(t, "190.57.149.90", res)
 }
+
+func TestParse_ipv6_with_port(t *testing.T) {
+	res := Parse("2604:2000:71a9:bf00:f178:a500:9a2d:670d")
+	assert.Equal(t, "2604:2000:71a9:bf00:f178:a500:9a2d:670d", res)
+}

@@ -1,7 +1,6 @@
 package xff
 
 import (
-	"fmt"
 	"net"
 	"net/http"
 	"strings"
@@ -53,7 +52,7 @@ func GetRemoteAddr(r *http.Request) string {
 	}
 	_, oport, err := net.SplitHostPort(r.RemoteAddr)
 	if err == nil && ip != "" {
-		return fmt.Sprintf("%s:%s", ip, oport)
+		return net.JoinHostPort(ip, oport)
 	}
 	return r.RemoteAddr
 }
