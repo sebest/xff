@@ -11,5 +11,5 @@ func main() {
 		w.Write([]byte("hello from " + r.RemoteAddr + "\n"))
 	})
 
-	http.ListenAndServe(":8080", xff.Handler(handler))
+	http.ListenAndServe(":3000", xff.Handler(handler))
 }

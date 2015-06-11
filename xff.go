@@ -65,5 +65,13 @@ func Handler(h http.Handler) http.Handler {
 	})
 }
 
-// XFF equals Handler for backward compatibility.
-var XFF = Handler
+// HandlerFunc is a Martini compatible handler
+func HandlerFunc(w http.ResponseWriter, r *http.Request) {
+	r.RemoteAddr = GetRemoteAddr(r)
+}
+
+// XFF is a Negroni compatible interface
+func XFF(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	r.RemoteAddr = GetRemoteAddr(r)
+	next(w, r)
+}
