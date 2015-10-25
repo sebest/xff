@@ -1,6 +1,7 @@
 package xff
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -64,4 +65,13 @@ func TestParse_multi_with_invalid_sioux(t *testing.T) {
 func TestParse_ipv6_with_port(t *testing.T) {
 	res := Parse("2604:2000:71a9:bf00:f178:a500:9a2d:670d")
 	assert.Equal(t, "2604:2000:71a9:bf00:f178:a500:9a2d:670d", res)
+}
+
+func TestGetRemoteAddr(t *testing.T) {
+	assert.Equal(t, "1.2.3.4:1234", GetRemoteAddr(&http.Request{RemoteAddr: "1.2.3.4:1234"}))
+	assert.Equal(t, "[2001:db8:0:1:1:1:1:1]:1234", GetRemoteAddr(&http.Request{RemoteAddr: "[2001:db8:0:1:1:1:1:1]:1234"}))
+	assert.Equal(t, "[2001:db8:0:1:1:1:1:1]:1234", GetRemoteAddr(&http.Request{
+		RemoteAddr: "1.2.3.4:1234",
+		Header:     http.Header{"X-Forwarded-For": []string{"2001:db8:0:1:1:1:1:1"}},
+	}))
 }
