@@ -1,4 +1,4 @@
-# X-Forwarded-For middleware fo Go [![godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/sebest/xff)
+# X-Forwarded-For middleware fo Go [![godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/sebest/xff) [![Build Status](https://travis-ci.org/sebest/xff.svg?branch=master)](https://travis-ci.org/sebest/xff)
 
 Package `xff` is a `net/http` middleware/handler to parse [Forwarded HTTP Extension](http://tools.ietf.org/html/rfc7239) in Golang.
 
@@ -24,7 +24,8 @@ func main() {
     w.Write([]byte("hello from " + r.RemoteAddr + "\n"))
   })
 
-  http.ListenAndServe(":8080", xff.Handler(handler))
+  xffmw, _ := xff.Default()
+  http.ListenAndServe(":8080", xffmw.Handler(handler))
 }
 ```
 
