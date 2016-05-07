@@ -17,7 +17,8 @@ func main() {
 	mux.Handle("/", handler)
 
 	n := negroni.Classic()
-	n.Use(negroni.HandlerFunc(xff.XFF))
+	xffmw, _ := xff.Default()
+	n.Use(xffmw)
 	n.UseHandler(mux)
 	n.Run(":3000")
 }
