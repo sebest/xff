@@ -49,12 +49,24 @@ func IsPublicIP(ip net.IP) bool {
 }
 
 // Parse parses the value of the X-Forwarded-For Header and returns the IP address.
-func Parse(ipList string) string {
-	for _, ip := range strings.Split(ipList, ",") {
+func Parse(ipList string, allowed func(sip string) bool) string {
+	ipSplit := strings.Split(ipList, ",")
+	var lastValidIP net.IP
+	for i := len(ipSplit) - 1; i >= 0; i-- {
+		ip := ipSplit[i]
 		ip = strings.TrimSpace(ip)
-		if IP := net.ParseIP(ip); IP != nil && IsPublicIP(IP) {
-			return ip
+		parsedIP := net.ParseIP(ip)
+		if parsedIP != nil && IsPublicIP(parsedIP) {
+			lastValidIP = parsedIP
+			if !allowed(ip) {
+				break
+			}
+		} else {
+			break
 		}
+	}
+	if lastValidIP != nil {
+		return lastValidIP.String()
 	}
 	return ""
 }
@@ -71,7 +83,7 @@ func GetRemoteAddrIfAllowed(r *http.Request, allowed func(sip string) bool) stri
 	if xffh := r.Header.Get("X-Forwarded-For"); xffh != "" {
 		if sip, sport, err := net.SplitHostPort(r.RemoteAddr); err == nil && sip != "" {
 			if allowed(sip) {
-				if xip := Parse(xffh); xip != "" {
+				if xip := Parse(xffh, allowed); xip != "" {
 					return net.JoinHostPort(xip, sport)
 				}
 			}
