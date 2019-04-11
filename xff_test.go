@@ -19,7 +19,7 @@ func TestParse_none(t *testing.T) {
 
 func TestParse_localhost(t *testing.T) {
 	res := Parse("127.0.0.1", allowAll)
-	assert.Equal(t, "", res)
+	assert.Equal(t, "127.0.0.1", res)
 }
 
 func TestParse_invalid(t *testing.T) {
@@ -49,7 +49,7 @@ func TestParse_multi_first(t *testing.T) {
 
 func TestParse_multi_last(t *testing.T) {
 	res := Parse("192.168.110.162, 190.57.149.90", allowAll)
-	assert.Equal(t, "190.57.149.90", res)
+	assert.Equal(t, "192.168.110.162", res)
 }
 
 func TestParse_multi_accept(t *testing.T) {
@@ -57,6 +57,18 @@ func TestParse_multi_accept(t *testing.T) {
 		return ip == "1.0.0.3"
 	})
 	assert.Equal(t, "1.0.0.2", res)
+}
+
+func TestParse_multi_accept_intermediate_private(t *testing.T) {
+	res := Parse("1.0.0.1, 1.0.0.2, 10.0.0.1, 1.0.0.3", func(ip string) bool {
+		return ip == "1.0.0.3" || ip == "10.0.0.1"
+	})
+	assert.Equal(t, "1.0.0.2", res)
+}
+
+func TestParse_multi_accept_final_private(t *testing.T) {
+	res := Parse("10.0.0.1, 1.0.0.3", allowAll)
+	assert.Equal(t, "10.0.0.1", res)
 }
 
 func TestParse_multi_with_invalid(t *testing.T) {

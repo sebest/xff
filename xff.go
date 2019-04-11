@@ -56,7 +56,7 @@ func Parse(ipList string, allowed func(sip string) bool) string {
 		ip := ipSplit[i]
 		ip = strings.TrimSpace(ip)
 		parsedIP := net.ParseIP(ip)
-		if parsedIP != nil && IsPublicIP(parsedIP) {
+		if parsedIP != nil {
 			lastValidIP = parsedIP
 			if !allowed(ip) {
 				break
